@@ -125,7 +125,7 @@ def profile_url(url: str) -> str:
         return "https://www.instagram.com/" + parts[0].lower()
     if "youtube.com" in h and parts:
         if parts[0].startswith("@") or (parts[0] in {"channel", "user", "c"} and len(parts) > 1):
-            return "https://www.youtube.com/" + "/".join(parts[:2] if parts[0] != "@x" and not parts[0].startswith("@") else parts[:1])
+            return "https://www.youtube.com/" + "/".join(parts[:1] if parts[0].startswith("@") else parts[:2])
         return ""
     if "tiktok.com" in h and parts and parts[0].startswith("@"):
         return "https://www.tiktok.com/" + parts[0].lower()
@@ -237,7 +237,7 @@ def candidate(result: dict, category: str, query: str) -> dict | None:
     if not direct_profile and len(social_links) > 8:
         # Directory / influencer roundups are not a creator's own site.
         return None
-    if not plausible_korean(title, snippet, visible[:2500], query):
+    if not plausible_korean(title, snippet, visible[:2500]):
         return None
     # The result text may expose a public email even when platforms block scraping.
     page_emails = emails_in(visible)
@@ -278,7 +278,7 @@ def run() -> None:
     hour = int(time.time() // 3600)
     items = [(cat, q) for cat, group in QUERIES.items() for q in group]
     random.Random(hour).shuffle(items)
-    page = (hour % 5) + 1
+    page = 2 if hour % 3 == 0 else 1
     found = []
     searched = 0
     for cat, query in items[:MAX_QUERIES]:
